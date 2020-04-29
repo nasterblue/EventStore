@@ -69,6 +69,7 @@ namespace EventStore.Core.Messages {
 			public int EpochNumber { get; set; }
 			public long EpochPosition { get; set; }
 			public Guid EpochId { get; set; }
+			public Guid EpochLeaderInstanceId { get; set; }
 			public long LastCommitPosition { get; set; }
 			public long WriterCheckpoint { get; set; }
 			public long ChaserCheckpoint { get; set; }
@@ -88,6 +89,7 @@ namespace EventStore.Core.Messages {
 				EpochNumber = message.EpochNumber;
 				EpochPosition = message.EpochPosition;
 				EpochId = message.EpochId;
+				EpochLeaderInstanceId = message.EpochLeaderInstanceId;
 				LastCommitPosition = message.LastCommitPosition;
 				WriterCheckpoint = message.WriterCheckpoint;
 				ChaserCheckpoint = message.ChaserCheckpoint;
@@ -114,6 +116,7 @@ namespace EventStore.Core.Messages {
 			public int EpochNumber { get; set; }
 			public long EpochPosition { get; set; }
 			public Guid EpochId { get; set; }
+			public Guid EpochLeaderInstanceId { get; set; }
 			public int NodePriority { get; set; }
 
 			public ProposalDto() {
@@ -132,6 +135,7 @@ namespace EventStore.Core.Messages {
 				EpochNumber = message.EpochNumber;
 				EpochPosition = message.EpochPosition;
 				EpochId = message.EpochId;
+				EpochLeaderInstanceId = message.EpochLeaderInstanceId;
 				LastCommitPosition = message.LastCommitPosition;
 				WriterCheckpoint = message.WriterCheckpoint;
 				ChaserCheckpoint = message.ChaserCheckpoint;
