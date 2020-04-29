@@ -276,7 +276,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService {
 			Func<int, int> nodePriority) {
 			var id = IdForNode(i);
 			var ep = EndpointForNode(i);
-			return new ElectionMessage.PrepareOk(1, id, ep, 1, 1, epochId, lastCommitPosition(i), writerCheckpoint(i),
+			return new ElectionMessage.PrepareOk(1, id, ep, 1, 1, epochId, Guid.Empty, lastCommitPosition(i), writerCheckpoint(i),
 				chaserCheckpoint(i), nodePriority(i));
 		}
 
@@ -287,7 +287,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService {
 			Func<int, int> nodePriority) {
 			var id = IdForNode(i);
 			var ep = EndpointForNode(i);
-			return new SUT.LeaderCandidate(id, ep, 1, 1, epochId, lastCommitPosition(i), writerCheckpoint(i),
+			return new SUT.LeaderCandidate(id, ep, 1, 1, epochId, Guid.Empty, lastCommitPosition(i), writerCheckpoint(i),
 				chaserCheckpoint(i), nodePriority(i));
 		}
 
