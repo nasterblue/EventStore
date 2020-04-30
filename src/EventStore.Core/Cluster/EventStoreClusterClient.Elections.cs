@@ -41,7 +41,7 @@ namespace EventStore.Core.Cluster {
 			SendPrepareOkAsync(prepareOk.View, prepareOk.ServerId, prepareOk.ServerInternalHttp, prepareOk.EpochNumber,
 					prepareOk.EpochPosition, prepareOk.EpochId, prepareOk.EpochLeaderInstanceId, prepareOk.LastCommitPosition,
 					prepareOk.WriterCheckpoint,
-					prepareOk.ChaserCheckpoint, prepareOk.NodePriority, deadline)
+					prepareOk.ChaserCheckpoint, prepareOk.NodePriority, prepareOk.ClusterInfo, deadline)
 				.ContinueWith(r => {
 					if (r.Exception != null) {
 						Log.Information(r.Exception, "Prepare OK Send Failed to {Server}",
@@ -125,7 +125,7 @@ namespace EventStore.Core.Cluster {
 
 		private async Task SendPrepareOkAsync(int view, Guid serverId, IPEndPoint serverInternalHttp, int epochNumber,
 			long epochPosition, Guid epochId, Guid epochLeaderInstanceId, long lastCommitPosition, long writerCheckpoint, long chaserCheckpoint,
-			int nodePriority, DateTime deadline) {
+			int nodePriority, ClusterInfo clusterInfo, DateTime deadline) {
 			var request = new PrepareOkRequest {
 				View = view,
 				ServerId = Uuid.FromGuid(serverId).ToDto(),
@@ -137,7 +137,8 @@ namespace EventStore.Core.Cluster {
 				LastCommitPosition = lastCommitPosition,
 				WriterCheckpoint = writerCheckpoint,
 				ChaserCheckpoint = chaserCheckpoint,
-				NodePriority = nodePriority
+				NodePriority = nodePriority,
+				ClusterInfo = ClusterInfo.ToGrpcClusterInfo(clusterInfo)
 			};
 			await _electionsClient.PrepareOkAsync(request, deadline: deadline.ToUniversalTime());
 		}
