@@ -244,10 +244,11 @@ namespace EventStore.Core.Tests.Services.ElectionsService {
 			}
 
 			var clusterInfo = new ClusterInfo(members);
+			var previousLeaderId = tc.LastElectedLeader.HasValue ? IdForNode(tc.LastElectedLeader.Value) : Guid.Empty;
 
 			for (int index = 0; index < 3; index++) {
 				var prepareOk = CreatePrepareOk(index, epochId, lastCommitPosition, writerCheckpoint, chaserCheckpoint,
-					nodePriority, clusterInfo);
+					nodePriority, previousLeaderId, clusterInfo);
 				prepareOks.Add(prepareOk.ServerId, prepareOk);
 			}
 
@@ -262,7 +263,7 @@ namespace EventStore.Core.Tests.Services.ElectionsService {
 			Assert.AreEqual(IdForNode(tc.ExpectedLeaderCandidateNode), mc.InstanceId);
 
 			var ownInfo = CreateLeaderCandidate(1, epochId, lastCommitPosition, writerCheckpoint, chaserCheckpoint,
-				nodePriority);
+				nodePriority, previousLeaderId);
 
 			var localNode = FromMember(0, members);
 
@@ -279,10 +280,11 @@ namespace EventStore.Core.Tests.Services.ElectionsService {
 			Func<int, long> writerCheckpoint,
 			Func<int, long> chaserCheckpoint,
 			Func<int, int> nodePriority,
+			Guid previousLeaderId,
 			ClusterInfo clusterInfo) {
 			var id = IdForNode(i);
 			var ep = EndpointForNode(i);
-			return new ElectionMessage.PrepareOk(1, id, ep, 1, 1, epochId, Guid.Empty, lastCommitPosition(i), writerCheckpoint(i),
+			return new ElectionMessage.PrepareOk(1, id, ep, 1, 1, epochId, previousLeaderId, lastCommitPosition(i), writerCheckpoint(i),
 				chaserCheckpoint(i), nodePriority(i), clusterInfo);
 		}
 
@@ -290,10 +292,11 @@ namespace EventStore.Core.Tests.Services.ElectionsService {
 			Func<int, long> lastCommitPosition,
 			Func<int, long> writerCheckpoint,
 			Func<int, long> chaserCheckpoint,
-			Func<int, int> nodePriority) {
+			Func<int, int> nodePriority,
+			Guid previousLeaderId) {
 			var id = IdForNode(i);
 			var ep = EndpointForNode(i);
-			return new SUT.LeaderCandidate(id, ep, 1, 1, epochId, Guid.Empty, lastCommitPosition(i), writerCheckpoint(i),
+			return new SUT.LeaderCandidate(id, ep, 1, 1, epochId, previousLeaderId, lastCommitPosition(i), writerCheckpoint(i),
 				chaserCheckpoint(i), nodePriority(i));
 		}
 
