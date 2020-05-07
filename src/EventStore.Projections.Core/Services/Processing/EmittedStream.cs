@@ -745,14 +745,14 @@ namespace EventStore.Projections.Core.Services.Processing {
 				throw CreateSequenceException(topAlreadyCommitted, eventToWrite);
 			}
 
-			Log.Verbose($"Emitted event ignored after resolution because it links to an event that no longer exists: eventId: {eventToWrite.EventId}, eventType: {eventToWrite.EventId}, checkpoint: {eventToWrite.CorrelationId}, causedBy: {eventToWrite.CausedBy}");
-
 			if (resp.Result == ReadEventResult.Success) {
 				anyFound = true;
 				NotifyEventCommitted(eventToWrite, topAlreadyCommitted.Item3);
 				_pendingWrites.Dequeue();
+			} else {
+				Log.Verbose($"Emitted event ignored after resolution because it links to an event that no longer exists: eventId: {eventToWrite.EventId}, eventType: {eventToWrite.EventId}, checkpoint: {eventToWrite.CorrelationId}, causedBy: {eventToWrite.CausedBy}");	
 			}
-			
+
 			SubmitWriteEventsInRecoveryLoop(anyFound);
 		}
 
