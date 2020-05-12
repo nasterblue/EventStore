@@ -461,12 +461,21 @@ namespace EventStore.Core.Services {
 				//otherwise we know that the leader was alive during the last gossip time interval and we try our luck
 				if (previousLeaderCandidate == null) {
 					foreach (var (id, prepareOk) in received) {
-						var member = prepareOk.ClusterInfo.Members.FirstOrDefault(
-							x => x.InstanceId == previousLeaderId &&
-							     x.IsAlive &&
-							     x.EpochNumber == best.EpochNumber &&
-							     x.EpochId == best.EpochId);
+						var member = prepareOk.ClusterInfo.Members.FirstOrDefault(x => x.InstanceId == previousLeaderId && x.IsAlive);
+
 						if (member != null) {
+							//these checks are not really necessary but we do them to ensure that everything is normal.
+							if (best.EpochNumber == member.EpochNumber && best.EpochId != member.EpochId) {
+								//something is definitely not right if the epoch numbers match but not the epoch ids
+								Log.Warning("ELECTIONS: (V={lastAttemptedView}) Epoch ID mismatch in gossip information from node {nodeId:B}. Best node's Epoch Id: {bestEpochId:B}, Leader node's Epoch Id: {leaderEpochId:B}", lastAttemptedView, id, best.EpochId, member.EpochId);
+								continue;
+							}
+
+							if (best.EpochNumber - member.EpochNumber > 2) {
+								//gossip information may be slightly out of date. We log a warning if the epoch number is off by more than 2
+								Log.Warning("ELECTIONS: (V={lastAttemptedView}) Epoch number is off by more than two in gossip information from node {nodeId:B}. Best node's Epoch number: {bestEpochNumber}, Leader node's Epoch number: {leaderEpochNumber}.", lastAttemptedView, id, best.EpochNumber, member.EpochNumber);
+							}
+
 							Log.Debug("ELECTIONS: (V={lastAttemptedView}) Previous Leader (L={previousLeaderId:B}) from last epoch record is still alive according to gossip from node {nodeId:B}.", lastAttemptedView, previousLeaderId, id);
 							previousLeaderCandidate = new LeaderCandidate(member.InstanceId,
 								member.InternalHttpEndPoint,
